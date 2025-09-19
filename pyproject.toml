@@ -1,0 +1,18 @@
+[project]
+name = "elogate"
+version = "0.1.0"
+description = "Web app to track game results using OpenSkill"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    # Sample dep needing override fixups
+    "psycopg2",
+]
+
+[project.scripts]
+elogate-server = "elogate.main:main"
+
+[build-system]
+requires = ["uv_build>=0.8.14,<0.9.0"]
+build-backend = "uv_build"
+
