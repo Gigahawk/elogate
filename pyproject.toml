@@ -5,8 +5,7 @@ description = "Web app to track game results using OpenSkill"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    # Sample dep needing override fixups
-    "psycopg2",
+    "tortoise-orm[accel]>=0.25.1",
 ]
 
 [project.scripts]

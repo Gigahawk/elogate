@@ -48,17 +48,6 @@
       hacks = pkgs.callPackage pyproject-nix.build.hacks {};
 
       pyprojectOverrides = final: prev: {
-        # Example override to fix build
-        psycopg2 = prev.psycopg2.overrideAttrs (old: {
-          buildInputs =
-            (
-              old.buildInputs or []
-            )
-            ++ [
-              prev.setuptools
-              pkgs.libpq.pg_config
-            ];
-        });
       };
 
       pythonSet =
