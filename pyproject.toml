@@ -5,6 +5,7 @@ description = "Web app to track game results using OpenSkill"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "aerich[toml]>=0.9.1",
     "tortoise-orm[accel]>=0.25.1",
 ]
 
