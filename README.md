@@ -14,6 +14,7 @@ competitive games.
 
 ## Design Goals
 
+- Reactive design (should look ok on narrow screens/mobile)
 - Main page will show all games, admins will have buttons to create/delete games
 - Players page will show all players, admins will have buttons to create/delete
   players
@@ -36,3 +37,19 @@ competitive games.
   - Participants and winners
   - Notes (nicegui rich text editor)
   - Attachments (picture of score cards etc.)
+
+## Technical Design Choices
+
+### Libs
+
+- Frontend: nicegui
+- Database: tortoiseorm (probably configurable but sqlite backed by default)
+- Rating math: openskill
+
+### Behaviors
+
+- Admins should be able to retroactively create matches. The server should
+  automatically recalculate all rankings necessary. Some heuristics to note:
+  - Only matches after the added one need to be updated
+    - If there are no newer matches containing the same players, no updates need
+      to happen
