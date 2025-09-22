@@ -3,7 +3,7 @@ from enum import Enum
 from openskill.models import MODELS as RANKING_MODELS
 from tortoise.exceptions import ConfigurationError
 from tortoise.models import Model
-from tortoise.fields import CharField, IntField
+from tortoise.fields import CharField, IntField, DatetimeField, JSONField
 
 RankingModels = Enum("RankingModels", {cls.__name__: cls for cls in RANKING_MODELS})
 CHAR_FIELD_LEN_NAMES = 256
@@ -46,7 +46,10 @@ class Game(Model):
     id = IntField(primary_key=True)
     name = CharField(max_length=CHAR_FIELD_LEN_NAMES, unique=True)
     ranking_model = EnumField(enum_type=RankingModels, max_length=CHAR_FIELD_LEN_NAMES)
+    # TODO: custom encoder/decoder?
+    ranking_model_args = JSONField()
 
 
 class Match(Model):
     id = IntField(primary_key=True)
+    modified = DatetimeField(auto_now=True)
