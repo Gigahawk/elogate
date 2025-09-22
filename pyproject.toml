@@ -29,3 +29,8 @@ location = "./migrations"
 
 src_folder = "./."
 
+[dependency-groups]
+dev = [
+    "pytest>=8.4.2",
+]
+

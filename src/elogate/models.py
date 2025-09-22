@@ -3,7 +3,15 @@ from enum import Enum
 from openskill.models import MODELS as RANKING_MODELS
 from tortoise.exceptions import ConfigurationError
 from tortoise.models import Model
-from tortoise.fields import CharField, IntField, DatetimeField, JSONField
+from tortoise.fields import (
+    CharField,
+    IntField,
+    DatetimeField,
+    JSONField,
+    ForeignKeyField,
+    ManyToManyField,
+    FloatField,
+)
 
 RankingModels = Enum("RankingModels", {cls.__name__: cls for cls in RANKING_MODELS})
 CHAR_FIELD_LEN_NAMES = 256
@@ -42,6 +50,26 @@ class Player(Model):
     name = CharField(max_length=CHAR_FIELD_LEN_NAMES, unique=True)
 
 
+class PlayerRank(Model):
+    id = IntField(primary_key=True)
+    match = ForeignKeyField("elogate.Match", related_name="ranks")
+    player = ForeignKeyField("elogate.Player", related_name="ranks")
+    # Rank in the match, same values mean players were on the same team
+    rank_idx = IntField()
+    mu = FloatField()
+    sigma = FloatField()
+
+
+# TODO: is this even needed? Might be nice for autofilling teams but beyond that idk
+# class Team(Model):
+#    id = IntField(primary_key=True)
+#    name = CharField(max_length=CHAR_FIELD_LEN_NAMES)
+#    game = ForeignKeyField("elogate.Game", related_name="teams")
+#    members = ManyToManyField(
+#        "elogate.Player", related_name="teams", through="player_team"
+#    )
+
+
 class Game(Model):
     id = IntField(primary_key=True)
     name = CharField(max_length=CHAR_FIELD_LEN_NAMES, unique=True)
@@ -53,3 +81,4 @@ class Game(Model):
 class Match(Model):
     id = IntField(primary_key=True)
     modified = DatetimeField(auto_now=True)
+    game = ForeignKeyField("elogate.Game", related_name="matches")
