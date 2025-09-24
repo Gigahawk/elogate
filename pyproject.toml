@@ -30,8 +30,18 @@ location = "./migrations"
 
 src_folder = "./."
 
+[tool.basedpyright]
+exclude = [
+    "migrations/**"
+]
+# Allow turning everything off in one short comment to avoid issues with auto formatting
+# moving things to different lines
+reportIgnoreCommentWithoutRule = false
+
 [dependency-groups]
 dev = [
+    "basedpyright>=1.31.5",
     "pytest>=8.4.2",
+    "tortoise-orm-stubs>=1.0.2",
 ]
 

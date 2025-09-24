@@ -5,7 +5,9 @@ from elogate.errors import NestedGameException
 
 
 @pytest.mark.asyncio
-async def test_db(init_db):
+async def test_db(
+    init_db,  # pyright: ignore [reportUnknownParameterType, reportMissingParameterType, reportUnusedParameter]
+):
     root_game = Game(name="Root game")
     await root_game.save()
 

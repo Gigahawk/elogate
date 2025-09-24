@@ -7,8 +7,10 @@ from elogate.operations import create_match, update_all_rankings
 
 
 @pytest.mark.asyncio
-async def test_db(init_db):
-    pool_game = Game(name="Pool")
+async def test_db(
+    init_db,  # pyright: ignore [reportUnknownParameterType, reportMissingParameterType, reportUnusedParameter]
+):
+    pool_game = Game(name="Pool", ranking_model="PlackettLuce")
     await pool_game.save()
 
     nine_ball = Game(name="9 Ball", parent=pool_game)
@@ -17,7 +19,7 @@ async def test_db(init_db):
     eight_ball = Game(name="8 Ball", parent=pool_game)
     await eight_ball.save()
 
-    players = {}
+    players: dict[str, Player] = {}
     for name in ["Alice", "Bob", "Charlie", "Dan"]:
         players[name] = Player(name=name)
         await players[name].save()

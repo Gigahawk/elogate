@@ -1,0 +1,27 @@
+on:
+  pull_request:
+  push:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: cachix/install-nix-action@v31
+      - uses: nix-community/cache-nix-action@v6
+        with:
+          primary-key: cache-${{ runner.os }}-nix-store-${{ hashFiles('**/*.nix') }}
+          restore-prefixes-first-match: cache-${{ runner.os }}-nix-store-
+      - name: Create a custom shell for devenv
+        shell: bash
+        run: |
+          mkdir -p $HOME/.local/bin
+          echo "#!/usr/bin/env bash" > $HOME/.local/bin/devenv
+          echo "nix develop --command bash \"\$1\"" >> $HOME/.local/bin/devenv
+          chmod +x $HOME/.local/bin/devenv
+
+
+      - name: Run Linter
+        shell: devenv {0}
+        run: basedpyright
+

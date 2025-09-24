@@ -1,9 +1,13 @@
+from typing import cast
 from datetime import datetime
-from collections import defaultdict
 
-from tortoise.expressions import Q
-
-from elogate.models import Game, Player, PlayerRank, Match
+from elogate.models import (
+    Game,
+    Player,
+    PlayerRank,
+    Match,
+    RankingModelsRatingType,
+)
 
 
 def teams_list_to_player_ids(teams: list[list[Player]]) -> list[list[int]]:
@@ -11,9 +15,9 @@ def teams_list_to_player_ids(teams: list[list[Player]]) -> list[list[int]]:
 
 
 async def player_ids_list_to_teams(player_ids: list[list[int]]) -> list[list[Player]]:
-    out = []
+    out: list[list[Player]] = []
     for t in player_ids:
-        team_out = []
+        team_out: list[Player] = []
         for id in t:
             player = await Player.filter(id=id).first()
             if not player:
@@ -47,13 +51,15 @@ async def _update_rankings_one_game(game: Game, root_timestamp: datetime):
 
     for match in matches:
         teams = await player_ids_list_to_teams(match.participants)
-        model = game.ranking_model.value(**game.ranking_model_args)
+        model = game.ranking_model(
+            **game.ranking_model_args  # pyright: ignore [reportArgumentType]
+        )
 
-        ranked_teams = []
+        ranked_teams: list[list[RankingModelsRatingType]] = []
         rank_idxs = {}
-        player_map = {}
+        player_map: dict[str, Player] = {}
         for rank_idx, t in enumerate(teams):
-            team = []
+            team: list[RankingModelsRatingType] = []
             for player in t:
                 rank_idxs[player.name] = rank_idx
                 player_map[player.name] = player
@@ -74,16 +80,24 @@ async def _update_rankings_one_game(game: Game, root_timestamp: datetime):
                     mu = last_rank.mu
                     sigma = last_rank.sigma
                     player_rank = model.rating(name=player.name, mu=mu, sigma=sigma)
+                player_rank = cast(RankingModelsRatingType, player_rank)
                 team.append(player_rank)
             ranked_teams.append(team)
-        ranked_teams = model.rate(ranked_teams)
+
+        ranked_teams = cast(
+            list[list[RankingModelsRatingType]],
+            model.rate(ranked_teams),  # pyright: ignore [reportArgumentType]
+        )
         for t in ranked_teams:
             for player in t:
-                db_player = player_map[player.name]
-                update_items = {
-                    "rank_idx": rank_idxs[player.name],
-                    "mu": player.mu,
-                    "sigma": player.sigma,
+                name: str = player.name  # pyright: ignore
+                mu: float = player.mu  # pyright: ignore
+                sigma: float = player.sigma  # pyright: ignore
+                db_player = player_map[name]
+                update_items: dict[str, int | float] = {
+                    "rank_idx": rank_idxs[name],
+                    "mu": mu,
+                    "sigma": sigma,
                 }
                 # Check if rank has already been created
                 rank = await match.ranks.filter(game=game, player=db_player).first()
@@ -93,7 +107,11 @@ async def _update_rankings_one_game(game: Game, root_timestamp: datetime):
                         game=game,
                         player=db_player,
                     )
-                rank.update_from_dict(update_items)
+                rank = (
+                    rank.update_from_dict(  # pyright: ignore [reportUnknownMemberType]
+                        update_items
+                    )
+                )
                 await rank.save()
 
 
