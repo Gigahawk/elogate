@@ -6,6 +6,9 @@ competitive games.
 ## Terminology
 
 - Game: A type or category of game (i.e. 7 Wonders, Catan, Chess, etc.)
+  - Game Mode: A specific rule set of a game. For example, you can't play a game
+    of pool, you have to be playing with some specific rule set like 9 ball or 8
+    ball.
 - Match: A specific instance of a game played at some point in time
 - Player: A participant in a match
 - User (admin): An authenticated individual authorized to create players, games,
@@ -37,6 +40,8 @@ competitive games.
   - Participants and winners
   - Notes (nicegui rich text editor)
   - Attachments (picture of score cards etc.)
+- Game modes should allow ranking per game mode and the overall game (i.e. a 9
+  ball match would affect your 9 ball rank as well as an overall pool rank)
 
 ## Technical Design Choices
 
@@ -53,3 +58,14 @@ competitive games.
   - Only matches after the added one need to be updated
     - If there are no newer matches containing the same players, no updates need
       to happen
+- Games and game modes can probably be stored in the same table with a foreign
+  key for children/parent.
+  - For now, only one level of nesting is allowed (maybe enforced with a
+    database rule or something). Game entries that have children can't have
+    matches associated with it.
+    - Specifically, entries with children can't have parents, and entries with
+      parents can't have children
+  - Any time a match is created, a player rank row is created for the game and
+    parent game if exists.
+    - This means the PlayerRank model will need a game foreign key ref to
+      indicate the game being described

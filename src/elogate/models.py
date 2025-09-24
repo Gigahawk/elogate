@@ -2,6 +2,7 @@ from enum import Enum
 
 from openskill.models import MODELS as RANKING_MODELS
 from tortoise.exceptions import ConfigurationError
+from tortoise.expressions import Q
 from tortoise.models import Model
 from tortoise.fields import (
     CharField,
@@ -49,10 +50,15 @@ class Player(Model):
     id = IntField(primary_key=True)
     name = CharField(max_length=CHAR_FIELD_LEN_NAMES, unique=True)
 
+    async def get_current_rank(self, game: "Game") -> "PlayerRank":
+        out = await self.ranks.filter(game=game).order_by("-match__timestamp").first()
+        return out
+
 
 class PlayerRank(Model):
     id = IntField(primary_key=True)
     match = ForeignKeyField("elogate.Match", related_name="ranks")
+    game = ForeignKeyField("elogate.Game", related_name="ranks")
     player = ForeignKeyField("elogate.Player", related_name="ranks")
     # Rank in the match, same values mean players were on the same team
     rank_idx = IntField()
@@ -70,15 +76,33 @@ class PlayerRank(Model):
 #    )
 
 
+class Match(Model):
+    id = IntField(primary_key=True)
+    timestamp = DatetimeField(auto_now_add=True, unique=True)
+    modified = DatetimeField(auto_now=True)
+    game = ForeignKeyField("elogate.Game", related_name="matches")
+    participants = JSONField()
+
+    def __repr__(self) -> str:
+        # TODO: is there a way to getting the game repr without needing await
+        return f"<Match: ({self.game}) ts: {self.timestamp} [{self.id}]>"
+
+
 class Game(Model):
     id = IntField(primary_key=True)
     name = CharField(max_length=CHAR_FIELD_LEN_NAMES, unique=True)
-    ranking_model = EnumField(enum_type=RankingModels, max_length=CHAR_FIELD_LEN_NAMES)
+    ranking_model = EnumField(
+        enum_type=RankingModels,
+        default=RankingModels.PlackettLuce,
+        max_length=CHAR_FIELD_LEN_NAMES,
+    )
     # TODO: custom encoder/decoder?
-    ranking_model_args = JSONField()
+    ranking_model_args = JSONField(default={})
+    parent = ForeignKeyField("elogate.Game", related_name="children", null=True)
 
+    @property
+    def all_matches(self):
+        return Match.filter(Q(game=self) | Q(game__parent=self)).order_by("timestamp")
 
-class Match(Model):
-    id = IntField(primary_key=True)
-    modified = DatetimeField(auto_now=True)
-    game = ForeignKeyField("elogate.Game", related_name="matches")
+    def __repr__(self) -> str:
+        return f"<Game: '{self.name}' [{self.id}]>"
