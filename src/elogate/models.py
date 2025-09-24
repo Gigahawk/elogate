@@ -4,6 +4,7 @@ from openskill.models import MODELS as RANKING_MODELS
 from tortoise.exceptions import ConfigurationError
 from tortoise.expressions import Q
 from tortoise.models import Model
+from tortoise.transactions import in_transaction
 from tortoise.fields import (
     CharField,
     IntField,
@@ -13,6 +14,8 @@ from tortoise.fields import (
     ManyToManyField,
     FloatField,
 )
+
+from elogate.errors import NestedGameException
 
 RankingModels = Enum("RankingModels", {cls.__name__: cls for cls in RANKING_MODELS})
 CHAR_FIELD_LEN_NAMES = 256
@@ -37,7 +40,9 @@ class EnumField(CharField):
 
     def to_python_value(self, value: str) -> Enum:
         try:
-            return self._enum_type(value)
+            # This doesn't work sometimes for some reason
+            # return self._enum_type(value)
+            return getattr(self._enum_type, value)
         except Exception:
             raise ValueError(
                 "Database value {} does not exist on Enum {}.".format(
@@ -99,6 +104,28 @@ class Game(Model):
     # TODO: custom encoder/decoder?
     ranking_model_args = JSONField(default={})
     parent = ForeignKeyField("elogate.Game", related_name="children", null=True)
+
+    async def save(self, *args, **kwargs):
+        async def _raise_on_fail(_mark):
+            if _mark.parent and await _mark.children.all():
+                raise NestedGameException("Child game cannot have its own children")
+
+        async def _check_children(_mark):
+            for child in await _mark.children.all():
+                _raise_on_fail(child)
+                _check_children(child)
+
+        async with in_transaction():
+
+            await super().save(*args, **kwargs)
+
+            # Check all parents for invalid rows
+            mark = self
+            while mark.parent:
+                await _raise_on_fail(mark)
+                mark = mark.parent
+
+            await _check_children(self)
 
     @property
     def all_matches(self):

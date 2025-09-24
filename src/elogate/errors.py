@@ -1,0 +1,2 @@
+class NestedGameException(Exception):
+    pass

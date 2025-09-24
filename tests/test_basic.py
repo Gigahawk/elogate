@@ -1,25 +1,9 @@
 from datetime import datetime
 
 import pytest
-import pytest_asyncio
-from tortoise import Tortoise
 
-from elogate.database import TORTOISE_ORM
-from elogate.models import RankingModels, Game, Player
-from elogate.operations import create_match
-
-
-@pytest_asyncio.fixture(scope="function")
-async def init_db():
-    test_config = TORTOISE_ORM.copy()
-    test_config["connections"] = {"default": "sqlite://:memory:"}
-
-    await Tortoise.init(config=test_config)
-    await Tortoise.generate_schemas()
-
-    yield
-
-    await Tortoise.close_connections()
+from elogate.models import Game, Player
+from elogate.operations import create_match, update_all_rankings
 
 
 @pytest.mark.asyncio
@@ -75,3 +59,21 @@ async def test_db(init_db):
     assert alice_pool_rank0 < alice_pool_rank1
     # Vice versa for Bob
     assert bob_pool_rank0 > bob_pool_rank1
+
+    # Manually update all rankings
+    await update_all_rankings()
+
+    alice_9b_rank_final = (await players["Alice"].get_current_rank(nine_ball)).mu
+    bob_9b_rank_final = (await players["Bob"].get_current_rank(nine_ball)).mu
+    alice_8b_rank_final = (await players["Alice"].get_current_rank(eight_ball)).mu
+    bob_8b_rank_final = (await players["Bob"].get_current_rank(eight_ball)).mu
+    alice_pool_rank_final = (await players["Alice"].get_current_rank(pool_game)).mu
+    bob_pool_rank_final = (await players["Bob"].get_current_rank(pool_game)).mu
+
+    # Nothing should have changed
+    assert alice_9b_rank0 == alice_9b_rank_final
+    assert bob_9b_rank0 == bob_9b_rank_final
+    assert alice_8b_rank0 == alice_8b_rank_final
+    assert bob_8b_rank0 == bob_8b_rank_final
+    assert alice_pool_rank0 == alice_pool_rank_final
+    assert bob_pool_rank0 == bob_pool_rank_final
