@@ -22,7 +22,7 @@ jobs:
         run: nix develop --command ruff format --exit-non-zero-on-format
 
   test:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
       - uses: DeterminateSystems/nix-installer-action@main
