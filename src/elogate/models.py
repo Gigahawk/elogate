@@ -21,7 +21,7 @@ from tortoise.fields import (
     ForeignKeyRelation,
     ForeignKeyNullableRelation,
     ReverseRelation,
-    FloatField,
+    FloatField,  # pyright: ignore [reportUnknownVariableType]
 )
 
 from elogate.errors import NestedGameException, PlayerUnrankedException
