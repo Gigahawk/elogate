@@ -19,5 +19,5 @@ jobs:
       - uses: DeterminateSystems/nix-installer-action@main
       - uses: DeterminateSystems/magic-nix-cache-action@main
       - name: Run formatter
-        run: nix develop --command ruff check
+        run: nix develop --command ruff format --exit-non-zero-on-format
 
