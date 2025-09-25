@@ -5,9 +5,15 @@ from fastapi.responses import RedirectResponse
 from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
 from nicegui import ui, app
 
-# TODO: real passwords
-passwords = {"admin": "admin"}
-unrestricted_page_routes = {"/login"}
+from elogate.ui.pages.main_page import main_page  # pyright: ignore [reportUnusedImport]
+from elogate.ui.pages.login_page import login_page  # pyright: ignore [reportUnusedImport]
+from elogate.ui.pages.user_create_page import user_create_page  # pyright: ignore [reportUnusedImport]
+from elogate.config import Settings
+
+unrestricted_page_routes = {
+    "/",
+    "/login",
+}
 
 
 class AuthMiddleware(BaseHTTPMiddleware):
@@ -25,52 +31,17 @@ class AuthMiddleware(BaseHTTPMiddleware):
 app.add_middleware(AuthMiddleware)
 
 
-@ui.page("/")
-def main_page():
-    def logout():
-        app.storage.user.clear()
-        ui.navigate.to("/login")
-
-    with ui.column().classes("absolute-center items-center"):
-        _ = ui.label(f"Hello {app.storage.user['username']}!").classes("text-2xl")
-        _ = ui.button(on_click=logout, icon="logout").props("outline round")
-
-
-@ui.page("/subpage")
-def test_page():
-    _ = ui.label("subpage")
-
-
-@ui.page("/login")
-def login(redirect_to: str = "/") -> RedirectResponse | None:
-    def try_login() -> None:
-        uname: str = username.value  # pyright: ignore [reportAny]
-        pword: str = password.value  # pyright: ignore [reportAny]
-        if passwords.get(uname) == pword:
-            app.storage.user.update(
-                {
-                    "username": uname,
-                    "authenticated": True,
-                }
-            )
-            ui.navigate.to(redirect_to)
-        else:
-            ui.notify("Wrong username or password", color="negative")
-
-    if app.storage.user.get("authenticated", False):  # pyright: ignore [reportUnknownMemberType]
-        return RedirectResponse("/")
-
-    with ui.card().classes("absolute-center"):
-        username = ui.input("Username").on("keydown.enter", try_login)
-        password = ui.input("Password", password=True, password_toggle_button=True).on(
-            "keydown.enter", try_login
-        )
-        _ = ui.button("Log in", on_click=try_login)
-
-
 def main(reload: bool = False):
-    # reload MUST be set to False when running through project.scripts for some reason
-    ui.run(title="Elogate", storage_secret="TODO_CHANGE_THIS", reload=reload)
+    settings = Settings()
+    with open(settings.secret_path, "r", encoding="utf-8") as f:
+        ui.run(
+            title="Elogate",
+            storage_secret=f.read().strip(),
+            host=settings.bind_ip,
+            port=settings.bind_port,
+            # reload MUST be set to False when running through project.scripts for some reason
+            reload=reload,
+        )
 
 
 if __name__ in {"__main__", "__mp_main__"}:
