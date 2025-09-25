@@ -15,3 +15,4 @@ class CreateButton(ui.fab):
                     on_click=lambda: ui.navigate.to("/users/create"),
                 )
                 _ = ui.fab_action("leaderboard", label="Game")
+                _ = ui.fab_action("sym_o_swords", label="Match")
