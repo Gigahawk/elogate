@@ -107,10 +107,8 @@ async def _update_rankings_one_game(game: Game, root_timestamp: datetime):
                         game=game,
                         player=db_player,
                     )
-                rank = (
-                    rank.update_from_dict(  # pyright: ignore [reportUnknownMemberType]
-                        update_items
-                    )
+                rank = rank.update_from_dict(  # pyright: ignore [reportUnknownMemberType]
+                    update_items
                 )
                 await rank.save()
 

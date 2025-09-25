@@ -156,7 +156,6 @@ class Game(Model):
         force_create: bool = False,
         force_update: bool = False,
     ):
-
         async with in_transaction():
             await super().save(
                 using_db=using_db,
