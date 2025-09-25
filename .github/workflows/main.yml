@@ -22,10 +22,10 @@ jobs:
         run: nix develop --command ruff format --exit-non-zero-on-format
 
   test:
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: DeterminateSystems/nix-installer-action@main
+      - uses: cachix/install-nix-action@v31
       - uses: DeterminateSystems/magic-nix-cache-action@main
       - name: Run tests
         run: nix develop --command pytest
