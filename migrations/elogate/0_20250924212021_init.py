@@ -6,7 +6,7 @@ async def upgrade(db: BaseDBAsyncClient) -> str:
         CREATE TABLE IF NOT EXISTS "game" (
     "id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
     "name" VARCHAR(256) NOT NULL UNIQUE,
-    "ranking_model" VARCHAR(256) NOT NULL DEFAULT 'PlackettLuce',
+    "ranking_model_name" VARCHAR(256) NOT NULL DEFAULT 'PlackettLuce',
     "ranking_model_args" JSON NOT NULL,
     "parent_id" INT REFERENCES "game" ("id") ON DELETE CASCADE
 );
@@ -19,7 +19,8 @@ CREATE TABLE IF NOT EXISTS "match" (
 );
 CREATE TABLE IF NOT EXISTS "player" (
     "id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-    "name" VARCHAR(256) NOT NULL UNIQUE
+    "name" VARCHAR(256) NOT NULL UNIQUE,
+    "icon" CHAR(36)
 );
 CREATE TABLE IF NOT EXISTS "playerrank" (
     "id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,

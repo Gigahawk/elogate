@@ -1,6 +1,7 @@
 from typing import override, TypeAlias
 from collections.abc import Iterable
 from datetime import datetime
+from uuid import UUID
 
 import openskill.models as ranking_models
 
@@ -18,10 +19,11 @@ from tortoise.fields import (
     DatetimeField,
     JSONField,
     ForeignKeyField,
+    FloatField,  # pyright: ignore [reportUnknownVariableType]
+    UUIDField,
     ForeignKeyRelation,
     ForeignKeyNullableRelation,
     ReverseRelation,
-    FloatField,  # pyright: ignore [reportUnknownVariableType]
 )
 
 from elogate.errors import NestedGameException, PlayerUnrankedException
@@ -50,6 +52,7 @@ CHAR_FIELD_LEN_NAMES = 256
 class Player(Model):
     id: Field[int] = IntField(primary_key=True)
     name: Field[str] = CharField(max_length=CHAR_FIELD_LEN_NAMES, unique=True)
+    icon: Field[UUID | None] = UUIDField(null=True)
 
     ranks: ReverseRelation[  # pyright: ignore [reportUninitializedInstanceVariable]
         "PlayerRank"

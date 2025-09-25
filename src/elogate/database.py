@@ -1,8 +1,10 @@
-TORTOISE_ORM = {
+from elogate.config import Settings
+
+TORTOISE_CONFIG = {
     "connections": {
         "default": {
             "engine": "tortoise.backends.sqlite",
-            "credentials": {"file_path": "default.sqlite3"},
+            "credentials": {"file_path": Settings().sqlite_db_path},
         }
     },
     "apps": {
