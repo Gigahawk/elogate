@@ -9,7 +9,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: DeterminateSystems/nix-installer-action@main
       - uses: DeterminateSystems/magic-nix-cache-action@main
-      - name: Run Linter
+      - name: Run linter
         run: nix develop --command basedpyright
 
   format:
@@ -20,4 +20,13 @@ jobs:
       - uses: DeterminateSystems/magic-nix-cache-action@main
       - name: Run formatter
         run: nix develop --command ruff format --exit-non-zero-on-format
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DeterminateSystems/nix-installer-action@main
+      - uses: DeterminateSystems/magic-nix-cache-action@main
+      - name: Run tests
+        run: nix develop --command pytest
 
