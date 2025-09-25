@@ -1,6 +1,7 @@
 **result
 **__pycache__**
-**.sqlite3
+**.sqlite3**
 **.nicegui
 **secret
 **elogate_resources**
+**test.py

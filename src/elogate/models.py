@@ -1,4 +1,5 @@
 from typing import override, TypeAlias
+from pathlib import Path
 from collections.abc import Iterable
 from datetime import datetime
 from uuid import UUID
@@ -27,6 +28,7 @@ from tortoise.fields import (
 )
 
 from elogate.errors import NestedGameException, PlayerUnrankedException
+from elogate.config import Settings
 
 
 # TODO: is there a better way to do this?
@@ -57,6 +59,10 @@ class Player(Model):
     ranks: ReverseRelation[  # pyright: ignore [reportUninitializedInstanceVariable]
         "PlayerRank"
     ]
+
+    @property
+    def icon_path(self) -> Path:
+        return Settings().resources_path / "images" / str(self.icon)
 
     async def get_current_rank(self, game: "Game") -> "PlayerRank":
         out = await self.ranks.filter(game=game).order_by("-match__timestamp").first()

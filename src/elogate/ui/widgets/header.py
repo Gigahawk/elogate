@@ -24,6 +24,7 @@ class Header(ui.header):
                     "text-inherit no-underline hover:underline"
                 ):
                     _ = ui.markdown("###### Elogate")
+                _ = ui.button(text="Players", on_click=lambda: ui.navigate.to("/users"))
                 _ = ui.space()
                 if logged_in():
                     _ = ui.label(f"Hello {app.storage.user['username']}")

@@ -10,6 +10,8 @@ from nicegui import ui, app
 from elogate.ui.pages.main_page import main_page  # pyright: ignore [reportUnusedImport]
 from elogate.ui.pages.login_page import login_page  # pyright: ignore [reportUnusedImport]
 from elogate.ui.pages.user_create_page import user_create_page  # pyright: ignore [reportUnusedImport]
+from elogate.ui.pages.users_page import users_page  # pyright: ignore [reportUnusedImport]
+from elogate.ui.pages.user_page import user_page  # pyright: ignore [reportUnusedImport]
 from elogate.database import TORTOISE_CONFIG
 from elogate.config import Settings
 

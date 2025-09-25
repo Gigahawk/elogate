@@ -40,6 +40,7 @@ class ImgUpload(ui.upload):
         self.img_path.mkdir(parents=True, exist_ok=True)
         if self.image is None:
             raise NoImgUploaded
-        self.uuid = uuid4()
+        if not self.uuid:
+            self.uuid = uuid4()
         self.image.save(self.img_path / str(self.uuid), "WEBP")
         self.disable()
