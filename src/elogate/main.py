@@ -6,7 +6,7 @@ from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoin
 from nicegui import ui, app
 
 # TODO: real passwords
-passwords = {"admin": "admin"    }
+passwords = {"admin": "admin"}
 unrestricted_page_routes = {"/login"}
 
 
